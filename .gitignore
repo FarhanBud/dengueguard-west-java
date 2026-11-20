@@ -1,0 +1,15 @@
+# Credentials & Secrets
+Gemini API.txt
+Gemini API
+.streamlit/secrets.toml
+.env
+
+# Python / Notebook Artifacts
+__pycache__/
+*.py[cod]
+*.ipynb
+
+# Local Binary Caches & Runtime Logs
+chroma_kemenkes_db/
+audit_log.jsonl
+app.py
