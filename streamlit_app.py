@@ -1152,12 +1152,15 @@ CUSTOM_CSS = """
 }
 .status-banner {
     background: #FFFFFF; border: 1px solid #CBD5E1; border-left: 5px solid #B91C1C;
-    padding: 12px 20px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    padding: 12px 20px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 12px;
 }
 .status-label { font-size: 11px; font-weight: 700; color: #64748B; letter-spacing: 0.8px; }
 .status-main { font-size: 14px; font-weight: 600; color: #0F172A; margin-top: 2px; }
 .status-meta { font-size: 13px; color: #475569; }
-.status-pill { padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.status-pill {
+    display: inline-block; white-space: nowrap; flex-shrink: 0;
+    padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700;
+}
 .badge-pending { background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B; }
 .badge-approved { background: #DCFCE7; color: #166534; border: 1px solid #22C55E; }
 .badge-dispatched { background: #DBEAFE; color: #1E40AF; border: 1px solid #3B82F6; }
@@ -1224,14 +1227,14 @@ def render_global_header():
 
 
 def render_role_top_bar(role_title, access_desc):
-    c1, c2 = st.columns([4, 1])
+    c1, c2 = st.columns([3.4, 1.6])
     with c1:
         st.markdown(
             f"<div class='role-bar'><div>Peran Aktif: <strong>{role_title}</strong> &nbsp;&bull;&nbsp; Hak Akses: {access_desc}</div></div>",
             unsafe_allow_html=True,
         )
     with c2:
-        if st.button("Kembali ke Beranda / Ganti Peran", key=f"back_{st.session_state.role}", width="stretch"):
+        if st.button("Ganti Peran / Beranda", key=f"back_{st.session_state.role}", width="stretch"):
             st.session_state.role = "landing"
             st.session_state.hitl_msg = ""
             st.rerun()
