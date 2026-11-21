@@ -785,11 +785,18 @@ def build_region_focus_map(region, year):
     ))
     label_yr = f"Baseline 2025 untuk Proyeksi {year}" if int(year) > 2025 else str(eff_year)
     fig.update_layout(
-        title=f"Peta Geospasial Fokus Wilayah: {region} ({label_yr})",
+        title=dict(
+            text=f"<b>Peta Fokus Wilayah: {region} ({label_yr})</b>",
+            x=0.01, y=0.96, xanchor="left", yanchor="top",
+            font=dict(size=13, color="#0F172A"),
+        ),
         map=dict(style="open-street-map", center=dict(lat=t_lat, lon=t_lon), zoom=9.2),
         paper_bgcolor="#FFFFFF", font=dict(color="#0F172A"),
-        height=310, margin=dict(l=10, r=10, t=42, b=10),
-        legend=dict(orientation="h", yanchor="bottom", y=1.01, xanchor="right", x=1),
+        height=340, margin=dict(l=8, r=8, t=74, b=8),
+        legend=dict(
+            orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0.0,
+            font=dict(size=11), bgcolor="rgba(255,255,255,0.85)",
+        ),
     )
     return fig
 
@@ -803,22 +810,33 @@ def build_trend_figure(region, trend_data):
     ))
     fig_trend.add_trace(go.Scatter(
         x=trend_data["year"], y=trend_data["dengue_case_fatality_rate"],
-        mode="lines+markers", name="Case Fatality Rate (%)",
+        mode="lines+markers", name="Case Fatality Rate (%)", yaxis="y2",
         line=dict(color="#334155", width=2.5, dash="dot"), marker=dict(size=7, color="#334155"),
     ))
     fig_trend.add_hline(
         y=IR_THRESHOLD, line_dash="dash", line_color="#DC2626",
-        annotation_text=f"Ambang IR Kemenkes ({IR_THRESHOLD})", annotation_position="top left",
+        annotation_text=f"Ambang IR Kemenkes ({IR_THRESHOLD})",
+        annotation_position="top left",
+        annotation_bgcolor="rgba(255,255,255,0.9)",
+        annotation_bordercolor="#DC2626",
+        annotation_borderwidth=1,
+        annotation_borderpad=3,
     )
+    max_cfr = max(2.0, float(trend_data["dengue_case_fatality_rate"].max()) * 1.35)
     fig_trend.update_layout(
-        title=f"Tren Epidemiologi 10 Tahun: {region} (2016-2025)",
-        xaxis_title="Tahun Pengamatan", yaxis_title="Nilai Indikator",
+        title=dict(
+            text=f"<b>Tren Epidemiologi 10 Tahun: {region} (2016–2025)</b>",
+            x=0.01, y=0.96, xanchor="left", yanchor="top",
+            font=dict(size=13, color="#0F172A"),
+        ),
+        xaxis_title="Tahun Pengamatan",
+        yaxis=dict(title="Incidence Rate (/100rb)", gridcolor="#E2E8F0", zeroline=False),
+        yaxis2=dict(title="CFR (%)", overlaying="y", side="right", range=[0, max_cfr], showgrid=False, zeroline=False),
         template="plotly_white", paper_bgcolor="#FFFFFF", plot_bgcolor="#FFFFFF",
-        font=dict(color="#0F172A"), height=310, margin=dict(l=30, r=20, t=45, b=30),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        font=dict(color="#0F172A"), height=340, margin=dict(l=42, r=42, t=76, b=36),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0.0, font=dict(size=11)),
     )
     fig_trend.update_xaxes(dtick=1, gridcolor="#E2E8F0")
-    fig_trend.update_yaxes(gridcolor="#E2E8F0")
     return fig_trend
 
 
@@ -848,11 +866,18 @@ def build_provincial_map(d, year, highlight_region):
             marker=dict(size=24, color="#1E293B", opacity=1.0),
         ))
     fig_map.update_layout(
-        title=f"Peta Geospasial Sebaran Risiko DBD 27 Kabupaten/Kota Jawa Barat ({year})",
+        title=dict(
+            text=f"<b>Peta Geospasial Risiko DBD 27 Kab/Kota Jawa Barat ({year})</b>",
+            x=0.01, y=0.97, xanchor="left", yanchor="top",
+            font=dict(size=13, color="#0F172A"),
+        ),
         map=dict(style="open-street-map", center=dict(lat=center_lat, lon=center_lon), zoom=zoom_lvl),
         paper_bgcolor="#FFFFFF", font=dict(color="#0F172A"),
-        height=390, margin=dict(l=10, r=10, t=45, b=10),
-        legend=dict(orientation="h", yanchor="bottom", y=1.01, xanchor="right", x=1),
+        height=420, margin=dict(l=8, r=8, t=88, b=8),
+        legend=dict(
+            orientation="h", yanchor="bottom", y=1.01, xanchor="left", x=0.0,
+            font=dict(size=10.5), bgcolor="rgba(255,255,255,0.85)",
+        ),
     )
     return fig_map
 
@@ -868,7 +893,7 @@ def build_provincial_quadrant(d, year, highlight_region):
             "Risiko Tinggi (IR > 49 atau CFR > 1.0%)": "#B91C1C",
             "Terkendali (IR <= 49 & CFR <= 1.0%)": "#0F766E",
         },
-        title=f"Matriks Kuadran Multi-Risiko: Curah Hujan & Banjir vs Incidence Rate ({year})",
+        title=f"Matriks Kuadran Multi-Risiko: Hujan & Banjir vs IR ({year})",
         labels={
             "annual_rainfall_mm": "Curah Hujan Tahunan (mm)",
             "dengue_incidence_rate": "Incidence Rate (/100rb Penduduk)",
@@ -876,8 +901,16 @@ def build_provincial_quadrant(d, year, highlight_region):
         },
         template="plotly_white", size_max=34,
     )
-    fig_quad.add_hline(y=IR_THRESHOLD, line_dash="dash", line_color="#7F1D1D", annotation_text=f"Ambang IR ({IR_THRESHOLD})")
-    fig_quad.add_vline(x=float(d["annual_rainfall_mm"].median()), line_dash="dot", line_color="#64748B", annotation_text="Median Curah Hujan")
+    fig_quad.add_hline(
+        y=IR_THRESHOLD, line_dash="dash", line_color="#7F1D1D",
+        annotation_text=f"Ambang IR ({IR_THRESHOLD})",
+        annotation_bgcolor="rgba(255,255,255,0.9)",
+    )
+    fig_quad.add_vline(
+        x=float(d["annual_rainfall_mm"].median()), line_dash="dot", line_color="#64748B",
+        annotation_text="Median Curah Hujan",
+        annotation_bgcolor="rgba(255,255,255,0.9)",
+    )
     if highlight_region and highlight_region != "Semua Wilayah (27 Kab/Kota)":
         sel = d[d["regency_city"] == highlight_region]
         if not sel.empty:
@@ -888,9 +921,14 @@ def build_provincial_quadrant(d, year, highlight_region):
                 arrowcolor="#0F172A", bgcolor="#FEF3C7", bordercolor="#B91C1C",
             )
     fig_quad.update_layout(
-        height=390, paper_bgcolor="#FFFFFF", plot_bgcolor="#FFFFFF", font=dict(color="#0F172A"),
-        margin=dict(l=30, r=20, t=45, b=30),
-        legend=dict(orientation="h", yanchor="bottom", y=1.01, xanchor="right", x=1),
+        title=dict(
+            text=f"<b>Matriks Kuadran Multi-Risiko: Hujan & Banjir vs IR ({year})</b>",
+            x=0.01, y=0.97, xanchor="left", yanchor="top",
+            font=dict(size=13, color="#0F172A"),
+        ),
+        height=420, paper_bgcolor="#FFFFFF", plot_bgcolor="#FFFFFF", font=dict(color="#0F172A"),
+        margin=dict(l=42, r=20, t=88, b=40),
+        legend=dict(title_text="", orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0.0, font=dict(size=10.5)),
     )
     return fig_quad
 
@@ -929,12 +967,23 @@ def generate_provincial_overview(year, highlight_region="Semua Wilayah (27 Kab/K
     )
     fig_bar.add_hline(
         y=IR_THRESHOLD, line_dash="dash", line_color="#7F1D1D",
-        annotation_text=f"Batas Ambang IR Kemenkes ({IR_THRESHOLD}/100rb) — *Merah jika IR > {IR_THRESHOLD} atau CFR > {CFR_THRESHOLD}%",
+        annotation_text=f"Ambang IR Kemenkes ({IR_THRESHOLD}/100rb) — *Merah: IR > {IR_THRESHOLD} atau CFR > {CFR_THRESHOLD}%",
+        annotation_position="top right",
+        annotation_bgcolor="rgba(255,255,255,0.94)",
+        annotation_bordercolor="#B91C1C",
+        annotation_borderwidth=1,
+        annotation_borderpad=3,
+        annotation_font=dict(size=11, color="#7F1D1D"),
     )
     fig_bar.update_layout(
-        xaxis_tickangle=-45, height=420, paper_bgcolor="#FFFFFF", plot_bgcolor="#FFFFFF",
-        font=dict(color="#0F172A"), margin=dict(l=30, r=20, t=50, b=100),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        title=dict(
+            text=f"<b>Peringkat Distribusi Incidence Rate (IR) 27 Kabupaten/Kota Jawa Barat — Tahun {eff_year}</b>",
+            x=0.01, y=0.96, xanchor="left", yanchor="top",
+            font=dict(size=13.5, color="#0F172A"),
+        ),
+        xaxis_tickangle=-45, height=440, paper_bgcolor="#FFFFFF", plot_bgcolor="#FFFFFF",
+        font=dict(color="#0F172A"), margin=dict(l=42, r=20, t=76, b=105),
+        legend=dict(title_text="", orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1.0, font=dict(size=11)),
     )
     table_view = d_sorted[[
         "regency_city", "dengue_incidence_rate", "dengue_case_fatality_rate",
@@ -1190,6 +1239,10 @@ CUSTOM_CSS = """
     font-size: 12.5px; color: #475569; line-height: 1.55;
 }
 .footer-rights { font-weight: 700; color: #0F172A; margin-top: 2px; letter-spacing: 0.4px; }
+[data-testid="stPlotlyChart"] {
+    background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 8px;
+    padding: 6px 10px 4px 10px; margin-bottom: 10px; overflow: hidden;
+}
 </style>
 """
 
